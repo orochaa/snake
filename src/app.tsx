@@ -6,12 +6,12 @@ import { MdRestartAlt } from 'react-icons/md'
 import { Cell } from './components/cell'
 import { Modal, useModal } from './components/modal'
 import {
+  comparePosition,
   copyCell,
   generateCell,
   generateFruit,
   generateSnake,
   generateTable,
-  isSamePosition,
 } from './utils'
 
 const initialSize = 17
@@ -58,107 +58,62 @@ export function App(): React.JSX.Element {
       const newSnake: Snake = []
       const lastCellPos = tableSize - 1
 
-      for (let i = 0; i < snake.length; i++) {
-        const cell = snake[i]
-        const prevCell = i > 0 ? snake[i - 1] : undefined
-
+      const handleTeleport = (
+        cell: Cell,
+        prevCell?: Cell
+      ): {
+        posX: number
+        posY: number
+      } | null => {
         if (prevCell) {
           if (cell.posY === 0 && prevCell.posY === lastCellPos) {
-            newSnake.push(
-              generateCell(cell.type, {
-                posX: cell.posX,
-                posY: lastCellPos,
-              })
-            )
-
-            continue
+            return { posX: cell.posX, posY: lastCellPos }
           }
 
           if (cell.posY === lastCellPos && prevCell.posY === 0) {
-            newSnake.push(
-              generateCell(cell.type, {
-                posX: cell.posX,
-                posY: 0,
-              })
-            )
-
-            continue
+            return { posX: cell.posX, posY: 0 }
           }
 
           if (cell.posX === 0 && prevCell.posX === lastCellPos) {
-            newSnake.push(
-              generateCell(cell.type, {
-                posX: lastCellPos,
-                posY: cell.posY,
-              })
-            )
-
-            continue
+            return { posX: lastCellPos, posY: cell.posY }
           }
 
           if (cell.posX === lastCellPos && prevCell.posX === 0) {
-            newSnake.push(
-              generateCell(cell.type, {
-                posX: 0,
-                posY: cell.posY,
-              })
-            )
-
-            continue
+            return { posX: 0, posY: cell.posY }
+          }
+        } else {
+          if (cell.posY === 0 && direction === 'top') {
+            return { posX: cell.posX, posY: lastCellPos }
           }
 
-          newSnake.push(
-            copyCell(cell, {
-              posX: prevCell.posX,
-              posY: prevCell.posY,
-            })
-          )
+          if (cell.posY === lastCellPos && direction === 'bottom') {
+            return { posX: cell.posX, posY: 0 }
+          }
 
-          continue
+          if (cell.posX === 0 && direction === 'left') {
+            return { posX: lastCellPos, posY: cell.posY }
+          }
+
+          if (cell.posX === lastCellPos && direction === 'right') {
+            return { posX: 0, posY: cell.posY }
+          }
         }
 
-        if (cell.posY === 0 && direction === 'top') {
-          newSnake.push(
-            generateCell(cell.type, {
-              posX: cell.posX,
-              posY: lastCellPos,
-            })
-          )
+        return null
+      }
 
-          continue
+      const moveCell = (
+        cell: Cell<'head' | 'body'>,
+        prevCell: Cell<'head' | 'body'> | undefined
+      ): Cell<'head' | 'body'> => {
+        const teleportPos = handleTeleport(cell, prevCell)
+
+        if (teleportPos) {
+          return generateCell(cell.type, teleportPos)
         }
 
-        if (cell.posY === lastCellPos && direction === 'bottom') {
-          newSnake.push(
-            generateCell(cell.type, {
-              posX: cell.posX,
-              posY: 0,
-            })
-          )
-
-          continue
-        }
-
-        if (cell.posX === 0 && direction === 'left') {
-          newSnake.push(
-            generateCell(cell.type, {
-              posX: lastCellPos,
-              posY: cell.posY,
-            })
-          )
-
-          continue
-        }
-
-        if (cell.posX === lastCellPos && direction === 'right') {
-          newSnake.push(
-            generateCell(cell.type, {
-              posX: 0,
-              posY: cell.posY,
-            })
-          )
-
-          continue
+        if (prevCell) {
+          return copyCell(cell, { posX: prevCell.posX, posY: prevCell.posY })
         }
 
         const posY =
@@ -168,29 +123,16 @@ export function App(): React.JSX.Element {
           cell.posX +
           (direction === 'left' ? -1 : direction === 'right' ? 1 : 0)
 
-        newSnake.push(
-          copyCell(cell, {
-            posY,
-            posX,
-          })
-        )
+        return copyCell(cell, { posX, posY })
       }
 
-      const head = newSnake[0]
-      const tail = newSnake[newSnake.length - 1]
-
-      const isGameOver = newSnake
-        .slice(1, -1)
-        .some(cell => isSamePosition(cell, head))
-
-      if (isGameOver) {
-        clearInterval(intervalId)
-        alert('end game')
-
-        return newSnake
+      const isGameOver = (head: Cell, body: Snake): boolean => {
+        return body.some(cell => comparePosition(cell, head))
       }
 
-      if (isSamePosition(head, fruit)) {
+      const growSnake = (newSnake: Snake): void => {
+        const tail = newSnake[newSnake.length - 1]
+
         newSnake.push(
           generateCell('body', {
             posY:
@@ -201,6 +143,26 @@ export function App(): React.JSX.Element {
               (direction === 'left' ? -1 : direction === 'right' ? 1 : 0),
           })
         )
+      }
+
+      for (let i = 0; i < snake.length; i++) {
+        const cell = snake[i]
+        const prevCell = i > 0 ? snake[i - 1] : undefined
+        newSnake.push(moveCell(cell, prevCell))
+      }
+
+      const head = newSnake[0]
+      const body = newSnake.slice(1)
+
+      if (isGameOver(head, body)) {
+        clearInterval(intervalId)
+        alert('end game')
+
+        return newSnake
+      }
+
+      if (comparePosition(head, fruit)) {
+        growSnake(newSnake)
         setFruit(generateFruit(tableSize, newSnake))
         const newScore = newSnake.length - initialSnake.length
         setScore(newScore)
@@ -329,7 +291,7 @@ export function App(): React.JSX.Element {
               style={{ width: 25 * tableSize, height: 25 * tableSize }}
             >
               {table.map(row =>
-                row.map(cell => <Cell key={cell.id} {...cell} />)
+                row.map(tile => <Cell key={tile.id} {...tile} />)
               )}
 
               <Cell key={fruit.id} {...fruit} />

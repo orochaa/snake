@@ -59,7 +59,7 @@ export function generateSnake(tableSize: number): Snake {
   ]
 }
 
-export function isSamePosition(a: Cell, b: Cell): boolean {
+export function comparePosition(a: Cell, b: Cell): boolean {
   return a.posX === b.posX && a.posY === b.posY
 }
 
