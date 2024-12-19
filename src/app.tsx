@@ -181,7 +181,7 @@ export function App(): React.JSX.Element {
           })
         )
         setFruit(generateFruit(tableSize, newSnake))
-        const newScore = newSnake.length
+        const newScore = newSnake.length - initialSnake.length
         setScore(newScore)
         setBestScore(bestScore => {
           if (newScore > bestScore) {
@@ -199,7 +199,10 @@ export function App(): React.JSX.Element {
 
     updateSnake(snake)
 
-    intervalId = setInterval(() => setSnake(updateSnake), 100)
+    intervalId = setInterval(
+      () => setSnake(updateSnake),
+      Math.max(400 - score * 25, 100)
+    )
 
     return (): void => {
       clearInterval(intervalId)
@@ -265,7 +268,7 @@ export function App(): React.JSX.Element {
               />
               <div className="absolute inset-0 flex flex-col justify-center text-center">
                 <span className="text-sm md:text-lg">Pontuação</span>
-                <span className="text-md md:text-xl">{snake.length}</span>
+                <span className="text-md md:text-xl">{score}</span>
               </div>
             </div>
             <div className="relative">
