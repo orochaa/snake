@@ -1,0 +1,9 @@
+.env
+yarn.lock
+package-lock.json
+pnpm-lock.yaml
+todo.md
+
+node_modules/
+coverage/
+dist/

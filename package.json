@@ -1,0 +1,47 @@
+{
+  "name": "@ftec-clinic/web",
+  "private": true,
+  "main": "src/main/index.tsx",
+  "type": "module",
+  "scripts": {
+    "start": "vite preview",
+    "dev": "vite",
+    "lint": "run-s lint:tsc lint:prettier lint:eslint",
+    "lint:tsc": "tsc -p tsconfig.build.json",
+    "lint:prettier": "prettier --write .",
+    "lint:eslint": "eslint --fix \"src/**/*.ts{x,}\"",
+    "build": "tsc -p tsconfig.build.json && vite build",
+    "test": "vitest --run",
+    "test:ci": "vitest --run --coverage"
+  },
+  "dependencies": {
+    "nanoid": "^5.0.9",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-icons": "^5.4.0"
+  },
+  "devDependencies": {
+    "@total-typescript/ts-reset": "^0.6.1",
+    "@trivago/prettier-plugin-sort-imports": "^5.2.0",
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.17",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.17.0",
+    "eslint-plugin-mist3rbru": "^0.6.3",
+    "npm-run-all2": "^7.0.2",
+    "postcss": "^8.4.49",
+    "prettier": "^3.4.2",
+    "prettier-plugin-tailwindcss": "^0.6.9",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.4",
+    "vitest": "^2.1.8"
+  },
+  "pnpm": {
+    "overrides": {
+      "csstype": "3.1.2"
+    }
+  }
+}
