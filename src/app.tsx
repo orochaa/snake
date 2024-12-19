@@ -1,7 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { FaQuestion } from 'react-icons/fa'
 import { ImGithub } from 'react-icons/im'
+import { LuGrid2X2Plus } from 'react-icons/lu'
+import { MdRestartAlt } from 'react-icons/md'
 import { Cell } from './components/cell'
+import { Modal, useModal } from './components/modal'
 import {
   copyCell,
   generateCell,
@@ -24,6 +27,21 @@ export function App(): React.JSX.Element {
   const [direction, setDirection] = useState<Direction>()
   const [score, setScore] = useState<number>(0)
   const [bestScore, setBestScore] = useState<number>(0)
+
+  const selectSizeModal = useModal()
+
+  const handleOpenSelectSizeModal = useCallback(() => {
+    selectSizeModal.current?.openModal()
+  }, [selectSizeModal])
+
+  const handleSelectSize = useCallback((size: number) => {
+    setTableSize(size)
+    setTable(generateTable(size))
+    const snake = generateSnake(size)
+    setSnake(snake)
+    setFruit(generateFruit(size, snake))
+    setDirection(undefined)
+  }, [])
 
   useEffect(() => {
     if (!direction) {
@@ -201,7 +219,7 @@ export function App(): React.JSX.Element {
 
     intervalId = setInterval(
       () => setSnake(updateSnake),
-      Math.max(400 - score * 25, 100)
+      Math.max(300 - score * 12.5, 100)
     )
 
     return (): void => {
@@ -318,8 +336,66 @@ export function App(): React.JSX.Element {
               ))}
             </div>
           </div>
+
+          <div className="mx-auto flex w-fit gap-2 rounded-lg bg-cyan-700 p-1.5 drop-shadow">
+            <button
+              type="button"
+              title="Escolher tabuleiro"
+              className="rounded-lg bg-neutral-100 p-2 text-zinc-600 hover:bg-neutral-200"
+              onClick={handleOpenSelectSizeModal}
+            >
+              <LuGrid2X2Plus size={32} />
+            </button>
+            <button
+              type="button"
+              title="Reiniciar jogo"
+              className="rounded-lg bg-neutral-100 p-2 text-zinc-600 hover:bg-neutral-200"
+              // onClick={handleRestartGame}
+            >
+              <MdRestartAlt size={32} />
+            </button>
+          </div>
         </div>
       </div>
+
+      <Modal ref={selectSizeModal}>
+        <h2 className="text-lg font-medium text-zinc-800">
+          Selecionar tabuleiro:
+        </h2>
+        <div className="mt-2 grid min-w-80 grid-cols-2 items-start gap-4">
+          {Array.from({ length: 4 }).map((_, i) => {
+            const size = initialSize + i * 2
+
+            return (
+              <button
+                key={size}
+                type="button"
+                title={`Selecionar tabuleiro ${size}x${size}`}
+                className="transition duration-100 hover:scale-[1.01]"
+                // eslint-disable-next-line react/jsx-no-bind
+                onClick={() => handleSelectSize(size)}
+              >
+                <span className="block text-center text-sm font-medium text-zinc-600">
+                  {size}x{size}
+                </span>
+                <div className="mx-auto w-fit rounded border border-black bg-[#9d8f84] p-1 shadow">
+                  <div
+                    className="grid gap-[1px] overflow-hidden border border-black"
+                    style={{
+                      gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))`,
+                    }}
+                  >
+                    {Array.from({ length: size * size }).map((_, i) => (
+                      // eslint-disable-next-line react/no-array-index-key
+                      <span key={i} className="size-2 bg-zinc-100" />
+                    ))}
+                  </div>
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      </Modal>
     </div>
   )
 }
