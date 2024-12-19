@@ -37,11 +37,14 @@ export function App(): React.JSX.Element {
   const handleSelectSize = useCallback((size: number) => {
     setTableSize(size)
     setTable(generateTable(size))
-    const snake = generateSnake(size)
-    setSnake(snake)
-    setFruit(generateFruit(size, snake))
-    setDirection(undefined)
   }, [])
+
+  const handleRestartGame = useCallback(() => {
+    const snake = generateSnake(tableSize)
+    setSnake(snake)
+    setFruit(generateFruit(tableSize, snake))
+    setDirection(undefined)
+  }, [tableSize])
 
   useEffect(() => {
     if (!direction) {
@@ -350,7 +353,7 @@ export function App(): React.JSX.Element {
               type="button"
               title="Reiniciar jogo"
               className="rounded-lg bg-neutral-100 p-2 text-zinc-600 hover:bg-neutral-200"
-              // onClick={handleRestartGame}
+              onClick={handleRestartGame}
             >
               <MdRestartAlt size={32} />
             </button>
