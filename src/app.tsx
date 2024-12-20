@@ -1,18 +1,12 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaQuestion } from 'react-icons/fa'
 import { ImGithub } from 'react-icons/im'
 import { LuGrid2X2Plus } from 'react-icons/lu'
 import { MdPause, MdPlayArrow, MdRestartAlt } from 'react-icons/md'
+import { generateActions } from './actions'
 import { Cell } from './components/cell'
 import { Modal, useModal } from './components/modal'
-import {
-  comparePosition,
-  copyCell,
-  generateCell,
-  generateFruit,
-  generateSnake,
-  generateTable,
-} from './utils'
+import { generateFruit, generateSnake, generateTable } from './utils'
 
 const initialSize = 17
 const initialTable = generateTable(initialSize)
@@ -31,6 +25,22 @@ export function App(): React.JSX.Element {
   const [pause, setPause] = useState<boolean>(false)
   const [lost, setLost] = useState<boolean>(false)
 
+  const actions = useMemo(
+    () =>
+      generateActions({
+        table,
+        fruit,
+        setTable,
+        setSnake,
+        setFruit,
+        setScore,
+        setBestScore,
+        setDirection,
+        setLost,
+      }),
+    [fruit, table]
+  )
+
   const selectSizeModal = useModal()
   const lostModal = useModal()
   const howToPlayModal = useModal()
@@ -45,13 +55,10 @@ export function App(): React.JSX.Element {
   }, [])
 
   const handleRestartGame = useCallback(() => {
-    const snake = generateSnake(tableSize)
-    setSnake(snake)
-    setFruit(generateFruit(table, snake))
-    setDirection(undefined)
-    setLost(false)
     lostModal.current?.closeModal()
-  }, [lostModal, table, tableSize])
+    actions.startGame()
+    setPause(false)
+  }, [actions, lostModal])
 
   const handleTogglePause = useCallback(() => {
     setPause(pause => !pause)
@@ -70,150 +77,18 @@ export function App(): React.JSX.Element {
       return
     }
 
-    // eslint-disable-next-line prefer-const
-    let intervalId: NodeJS.Timeout
-
-    const updateSnake = (snake: Snake): Snake => {
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (!direction || pause || lost) {
-        clearInterval(intervalId)
-
-        return snake
-      }
-
-      const newSnake: Snake = []
-      const lastCellPos = tableSize - 1
-
-      const handleTeleport = (
-        cell: Cell,
-        prevCell?: Cell
-      ): {
-        posX: number
-        posY: number
-      } | null => {
-        if (prevCell) {
-          if (cell.posY === 0 && prevCell.posY === lastCellPos) {
-            return { posX: cell.posX, posY: lastCellPos }
-          }
-
-          if (cell.posY === lastCellPos && prevCell.posY === 0) {
-            return { posX: cell.posX, posY: 0 }
-          }
-
-          if (cell.posX === 0 && prevCell.posX === lastCellPos) {
-            return { posX: lastCellPos, posY: cell.posY }
-          }
-
-          if (cell.posX === lastCellPos && prevCell.posX === 0) {
-            return { posX: 0, posY: cell.posY }
-          }
-        } else {
-          if (cell.posY === 0 && direction === 'top') {
-            return { posX: cell.posX, posY: lastCellPos }
-          }
-
-          if (cell.posY === lastCellPos && direction === 'bottom') {
-            return { posX: cell.posX, posY: 0 }
-          }
-
-          if (cell.posX === 0 && direction === 'left') {
-            return { posX: lastCellPos, posY: cell.posY }
-          }
-
-          if (cell.posX === lastCellPos && direction === 'right') {
-            return { posX: 0, posY: cell.posY }
-          }
-        }
-
-        return null
-      }
-
-      const moveCell = (
-        cell: Cell<'head' | 'body'>,
-        prevCell: Cell<'head' | 'body'> | undefined
-      ): Cell<'head' | 'body'> => {
-        const teleportPos = handleTeleport(cell, prevCell)
-
-        if (teleportPos) {
-          return generateCell(cell.type, teleportPos)
-        }
-
-        if (prevCell) {
-          return copyCell(cell, { posX: prevCell.posX, posY: prevCell.posY })
-        }
-
-        const posY =
-          cell.posY +
-          (direction === 'bottom' ? 1 : direction === 'top' ? -1 : 0)
-        const posX =
-          cell.posX +
-          (direction === 'left' ? -1 : direction === 'right' ? 1 : 0)
-
-        return copyCell(cell, { posX, posY })
-      }
-
-      const isGameOver = (head: Cell, body: Snake): boolean => {
-        return body.some(cell => comparePosition(cell, head))
-      }
-
-      const growSnake = (newSnake: Snake): void => {
-        const tail = newSnake[newSnake.length - 1]
-
-        newSnake.push(
-          generateCell('body', {
-            posY:
-              tail.posY +
-              (direction === 'bottom' ? 1 : direction === 'top' ? -1 : 0),
-            posX:
-              tail.posX +
-              (direction === 'left' ? -1 : direction === 'right' ? 1 : 0),
-          })
-        )
-      }
-
-      for (let i = 0; i < snake.length; i++) {
-        const cell = snake[i]
-        const prevCell = i > 0 ? snake[i - 1] : undefined
-        newSnake.push(moveCell(cell, prevCell))
-      }
-
-      const head = newSnake[0]
-      const body = newSnake.slice(1)
-
-      if (comparePosition(head, fruit)) {
-        growSnake(newSnake)
-        setFruit(generateFruit(table, newSnake))
-        const newScore = newSnake.length - initialSnake.length
-        setScore(newScore)
-        setBestScore(bestScore => {
-          if (newScore > bestScore) {
-            localStorage.setItem('best-snake-score', String(newScore))
-
-            return newScore
-          }
-
-          return bestScore
-        })
-
-        return newSnake
-      }
-
-      if (isGameOver(head, body)) {
-        clearInterval(intervalId)
-        setDirection(undefined)
-        setLost(true)
-        lostModal.current?.openModal()
-
-        return newSnake
-      }
-
-      return newSnake
-    }
-
     updateSnake(snake)
 
-    intervalId = setInterval(
-      () => setSnake(updateSnake),
+    const intervalId = setInterval(
+      () => {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        if (!direction || pause || lost) {
+          clearInterval(intervalId)
+
+          return
+        }
+        setSnake(updateSnake)
+      },
       Math.max(300 - score * 12.5, 100)
     )
 
@@ -229,33 +104,25 @@ export function App(): React.JSX.Element {
         case 'ArrowUp':
         case 'w':
           e.preventDefault()
-          setDirection(direction =>
-            direction === 'bottom' ? direction : 'top'
-          )
+          actions.moveTop()
           setPause(false)
           break
         case 'ArrowDown':
         case 's':
           e.preventDefault()
-          setDirection(direction =>
-            direction === 'top' ? direction : 'bottom'
-          )
+          actions.moveBottom()
           setPause(false)
           break
         case 'ArrowLeft':
         case 'a':
           e.preventDefault()
-          setDirection(direction =>
-            !direction || direction === 'right' ? direction : 'left'
-          )
+          actions.moveLeft()
           setPause(false)
           break
         case 'ArrowRight':
         case 'd':
           e.preventDefault()
-          setDirection(direction =>
-            direction === 'left' ? direction : 'right'
-          )
+          actions.moveRight()
           setPause(false)
           break
         case 'Escape':
@@ -271,7 +138,7 @@ export function App(): React.JSX.Element {
     return (): void => {
       document.removeEventListener('keydown', handleDirection)
     }
-  }, [handleTogglePause])
+  }, [actions, handleTogglePause])
 
   useEffect(() => {
     const savedBestScore = localStorage.getItem('best-snake-score')
