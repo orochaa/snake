@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { FaQuestion } from 'react-icons/fa'
 import { ImGithub } from 'react-icons/im'
 import { LuGrid2X2Plus } from 'react-icons/lu'
-import { MdRestartAlt } from 'react-icons/md'
+import { MdPause, MdPlayArrow, MdRestartAlt } from 'react-icons/md'
 import { Cell } from './components/cell'
 import { Modal, useModal } from './components/modal'
 import {
@@ -27,6 +27,8 @@ export function App(): React.JSX.Element {
   const [direction, setDirection] = useState<Direction>()
   const [score, setScore] = useState<number>(0)
   const [bestScore, setBestScore] = useState<number>(0)
+
+  const [pause, setPause] = useState<boolean>(false)
   const [lost, setLost] = useState<boolean>(false)
 
   const selectSizeModal = useModal()
@@ -51,6 +53,10 @@ export function App(): React.JSX.Element {
     lostModal.current?.closeModal()
   }, [lostModal, tableSize])
 
+  const handleTogglePause = useCallback(() => {
+    setPause(pause => !pause)
+  }, [])
+
   const handleOpenHowToPlayModal = useCallback(() => {
     howToPlayModal.current?.openModal()
   }, [howToPlayModal])
@@ -60,7 +66,7 @@ export function App(): React.JSX.Element {
   }, [howToPlayModal])
 
   useEffect(() => {
-    if (!direction || lost) {
+    if (!direction || pause || lost) {
       return
     }
 
@@ -206,7 +212,7 @@ export function App(): React.JSX.Element {
       clearInterval(intervalId)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [direction, fruit])
+  }, [direction, fruit, lost, pause])
 
   useEffect(() => {
     const handleDirection = (e: KeyboardEvent): void => {
@@ -217,6 +223,7 @@ export function App(): React.JSX.Element {
           setDirection(direction =>
             direction === 'bottom' ? direction : 'top'
           )
+          setPause(false)
           break
         case 'ArrowDown':
         case 's':
@@ -224,6 +231,7 @@ export function App(): React.JSX.Element {
           setDirection(direction =>
             direction === 'top' ? direction : 'bottom'
           )
+          setPause(false)
           break
         case 'ArrowLeft':
         case 'a':
@@ -231,6 +239,7 @@ export function App(): React.JSX.Element {
           setDirection(direction =>
             !direction || direction === 'right' ? direction : 'left'
           )
+          setPause(false)
           break
         case 'ArrowRight':
         case 'd':
@@ -238,6 +247,12 @@ export function App(): React.JSX.Element {
           setDirection(direction =>
             direction === 'left' ? direction : 'right'
           )
+          setPause(false)
+          break
+        case 'Escape':
+        case ' ':
+          e.preventDefault()
+          handleTogglePause()
           break
       }
     }
@@ -247,7 +262,7 @@ export function App(): React.JSX.Element {
     return (): void => {
       document.removeEventListener('keydown', handleDirection)
     }
-  }, [])
+  }, [handleTogglePause])
 
   useEffect(() => {
     const savedBestScore = localStorage.getItem('best-snake-score')
@@ -323,6 +338,15 @@ export function App(): React.JSX.Element {
               {snake.map((cell, i) => (
                 <Cell key={cell.id} {...cell} zIndex={snake.length - i} />
               ))}
+
+              {!!pause && (
+                <div
+                  className="absolute inset-0 z-10 flex items-center justify-center bg-black/20"
+                  style={{ width: 25 * tableSize, height: 25 * tableSize }}
+                >
+                  <MdPause className="size-24 text-cyan-500" />
+                </div>
+              )}
             </div>
           </div>
 
@@ -334,6 +358,14 @@ export function App(): React.JSX.Element {
               onClick={handleOpenSelectSizeModal}
             >
               <LuGrid2X2Plus size={32} />
+            </button>
+            <button
+              type="button"
+              title={`${pause ? 'Retomar' : 'Pausar'} jogo`}
+              className="rounded-lg bg-neutral-100 p-2 text-zinc-600 hover:bg-neutral-200"
+              onClick={handleTogglePause}
+            >
+              {pause ? <MdPlayArrow size={32} /> : <MdPause size={32} />}
             </button>
             <button
               type="button"
