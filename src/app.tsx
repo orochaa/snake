@@ -17,7 +17,7 @@ import {
 const initialSize = 17
 const initialTable = generateTable(initialSize)
 const initialSnake = generateSnake(initialSize)
-const initialFruit = generateFruit(initialSize, initialSnake)
+const initialFruit = generateFruit(initialTable, initialSnake)
 
 export function App(): React.JSX.Element {
   const [table, setTable] = useState<Table>(initialTable)
@@ -47,11 +47,11 @@ export function App(): React.JSX.Element {
   const handleRestartGame = useCallback(() => {
     const snake = generateSnake(tableSize)
     setSnake(snake)
-    setFruit(generateFruit(tableSize, snake))
+    setFruit(generateFruit(table, snake))
     setDirection(undefined)
     setLost(false)
     lostModal.current?.closeModal()
-  }, [lostModal, tableSize])
+  }, [lostModal, table, tableSize])
 
   const handleTogglePause = useCallback(() => {
     setPause(pause => !pause)
@@ -74,6 +74,13 @@ export function App(): React.JSX.Element {
     let intervalId: NodeJS.Timeout
 
     const updateSnake = (snake: Snake): Snake => {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      if (!direction || pause || lost) {
+        clearInterval(intervalId)
+
+        return snake
+      }
+
       const newSnake: Snake = []
       const lastCellPos = tableSize - 1
 
@@ -173,18 +180,9 @@ export function App(): React.JSX.Element {
       const head = newSnake[0]
       const body = newSnake.slice(1)
 
-      if (isGameOver(head, body)) {
-        clearInterval(intervalId)
-        setDirection(undefined)
-        setLost(true)
-        lostModal.current?.openModal()
-
-        return newSnake
-      }
-
       if (comparePosition(head, fruit)) {
         growSnake(newSnake)
-        setFruit(generateFruit(tableSize, newSnake))
+        setFruit(generateFruit(table, newSnake))
         const newScore = newSnake.length - initialSnake.length
         setScore(newScore)
         setBestScore(bestScore => {
@@ -196,6 +194,17 @@ export function App(): React.JSX.Element {
 
           return bestScore
         })
+
+        return newSnake
+      }
+
+      if (isGameOver(head, body)) {
+        clearInterval(intervalId)
+        setDirection(undefined)
+        setLost(true)
+        lostModal.current?.openModal()
+
+        return newSnake
       }
 
       return newSnake

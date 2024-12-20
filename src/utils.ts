@@ -35,28 +35,29 @@ export function generateTable(size: number): Table {
   )
 }
 
-export function generateFruit(tableSize: number, snake: Snake): Fruit {
-  const row = Object.keys(Array.from({ length: tableSize })).map(Number)
+export function generateFruit(table: Table, snake: Snake): Fruit {
+  const emptyTiles = table.flatMap(row =>
+    row.filter(tile => !snake.some(cell => comparePosition(tile, cell)))
+  )
+  const emptyTile = getRandomValue(emptyTiles)
 
   return generateCell('fruit', {
     id: 'fruit',
-    posX: getRandomValue(
-      row.filter(pos => !snake.some(cell => cell.posX === pos))
-    ),
-    posY: getRandomValue(
-      row.filter(pos => !snake.some(cell => cell.posY === pos))
-    ),
+    posX: emptyTile.posX,
+    posY: emptyTile.posY,
   })
 }
 
 export function generateSnake(tableSize: number): Snake {
   const snakePos = Math.round(tableSize / 2)
+  const snakeSize = 3
 
-  return [
-    generateCell('head', { posX: snakePos, posY: snakePos }),
-    generateCell('body', { posX: snakePos - 1, posY: snakePos }),
-    generateCell('body', { posX: snakePos - 2, posY: snakePos }),
-  ]
+  return Array.from({ length: snakeSize }).map((_, i) =>
+    generateCell(i === 0 ? 'head' : 'body', {
+      posX: snakePos - i,
+      posY: snakePos,
+    })
+  )
 }
 
 export function comparePosition(a: Cell, b: Cell): boolean {
