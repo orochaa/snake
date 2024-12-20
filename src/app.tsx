@@ -27,8 +27,10 @@ export function App(): React.JSX.Element {
   const [direction, setDirection] = useState<Direction>()
   const [score, setScore] = useState<number>(0)
   const [bestScore, setBestScore] = useState<number>(0)
+  const [lost, setLost] = useState<boolean>(false)
 
   const selectSizeModal = useModal()
+  const lostModal = useModal()
 
   const handleOpenSelectSizeModal = useCallback(() => {
     selectSizeModal.current?.openModal()
@@ -44,10 +46,12 @@ export function App(): React.JSX.Element {
     setSnake(snake)
     setFruit(generateFruit(tableSize, snake))
     setDirection(undefined)
-  }, [tableSize])
+    setLost(false)
+    lostModal.current?.closeModal()
+  }, [lostModal, tableSize])
 
   useEffect(() => {
-    if (!direction) {
+    if (!direction || lost) {
       return
     }
 
@@ -156,7 +160,9 @@ export function App(): React.JSX.Element {
 
       if (isGameOver(head, body)) {
         clearInterval(intervalId)
-        alert('end game')
+        setDirection(undefined)
+        setLost(true)
+        lostModal.current?.openModal()
 
         return newSnake
       }
@@ -360,6 +366,23 @@ export function App(): React.JSX.Element {
             )
           })}
         </div>
+      </Modal>
+
+      <Modal ref={lostModal}>
+        <h2 className="text-center text-lg font-medium text-zinc-800">
+          Fim de jogo
+        </h2>
+        <p className="mt-1 max-w-72 text-center">
+          O jogo chegou ao fim porque não há mais movimentos possíveis para
+          combinar os blocos e criar um novo espaço vazio no tabuleiro.
+        </p>
+        <button
+          type="button"
+          className="mx-auto mt-4 block rounded bg-neutral-200 p-2 hover:bg-neutral-300"
+          onClick={handleRestartGame}
+        >
+          Tentar Novamente
+        </button>
       </Modal>
     </div>
   )
