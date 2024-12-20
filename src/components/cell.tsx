@@ -34,7 +34,7 @@ export function Cell(props: CellProps): React.JSX.Element {
     >
       {type === 'fruit' && (
         <img
-          src="/assets/fruit.png"
+          src="/public/images/fruit.png"
           alt="fruit"
           className="size-7 object-contain"
         />

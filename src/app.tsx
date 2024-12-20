@@ -268,7 +268,7 @@ export function App(): React.JSX.Element {
           <div className="mx-auto flex flex-wrap justify-center gap-3 md:absolute md:-right-52 md:top-0 md:flex-col">
             <div className="relative">
               <img
-                src="/assets/scoreboard.png"
+                src="/public/images/scoreboard.png"
                 alt="Scoreboard"
                 className="w-48"
               />
@@ -279,7 +279,7 @@ export function App(): React.JSX.Element {
             </div>
             <div className="relative">
               <img
-                src="/assets/scoreboard.png"
+                src="/public/images/scoreboard.png"
                 alt="Scoreboard"
                 className="w-48"
               />
