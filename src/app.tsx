@@ -205,22 +205,30 @@ export function App(): React.JSX.Element {
         case 'ArrowUp':
         case 'w':
           e.preventDefault()
-          setDirection('top')
+          setDirection(direction =>
+            direction === 'bottom' ? direction : 'top'
+          )
           break
         case 'ArrowDown':
         case 's':
           e.preventDefault()
-          setDirection('bottom')
+          setDirection(direction =>
+            direction === 'top' ? direction : 'bottom'
+          )
           break
         case 'ArrowLeft':
         case 'a':
           e.preventDefault()
-          setDirection('left')
+          setDirection(direction =>
+            !direction || direction === 'right' ? direction : 'left'
+          )
           break
         case 'ArrowRight':
         case 'd':
           e.preventDefault()
-          setDirection('right')
+          setDirection(direction =>
+            direction === 'left' ? direction : 'right'
+          )
           break
       }
     }
@@ -293,7 +301,7 @@ export function App(): React.JSX.Element {
 
           <div className="relative mx-auto rounded-lg border-2 border-black bg-[#9d8f84] p-3 shadow">
             <div
-              className="relative overflow-hidden border-2 border-black"
+              className="relative overflow-hidden border-2 border-dashed border-black"
               style={{ width: 25 * tableSize, height: 25 * tableSize }}
             >
               {table.map(row =>
