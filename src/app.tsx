@@ -31,6 +31,7 @@ export function App(): React.JSX.Element {
 
   const selectSizeModal = useModal()
   const lostModal = useModal()
+  const howToPlayModal = useModal()
 
   const handleOpenSelectSizeModal = useCallback(() => {
     selectSizeModal.current?.openModal()
@@ -49,6 +50,14 @@ export function App(): React.JSX.Element {
     setLost(false)
     lostModal.current?.closeModal()
   }, [lostModal, tableSize])
+
+  const handleOpenHowToPlayModal = useCallback(() => {
+    howToPlayModal.current?.openModal()
+  }, [howToPlayModal])
+
+  const handleCloseHowToPlayModal = useCallback(() => {
+    howToPlayModal.current?.closeModal()
+  }, [howToPlayModal])
 
   useEffect(() => {
     if (!direction || lost) {
@@ -292,6 +301,7 @@ export function App(): React.JSX.Element {
               <button
                 type="button"
                 className="flex items-center rounded-lg bg-neutral-100 p-2 text-zinc-600 hover:bg-neutral-200"
+                onClick={handleOpenHowToPlayModal}
                 title="Como jogar?"
               >
                 <FaQuestion size={24} className="text-zinc-800" />
@@ -390,6 +400,43 @@ export function App(): React.JSX.Element {
           onClick={handleRestartGame}
         >
           Tentar Novamente
+        </button>
+      </Modal>
+
+      <Modal ref={howToPlayModal}>
+        <h2 className="text-center text-lg font-medium text-zinc-800">
+          Como jogar?
+        </h2>
+        <div className="mt-1 flex max-w-96 flex-col gap-2 text-pretty">
+          <p>
+            O jogo da cobrinha é um clássico dos videogames, conhecido por sua
+            jogabilidade simples e divertida. Supere desafios crescentes à
+            medida que a cobra cresce, exigindo reflexos rápidos e estratégias
+            inteligentes para evitar colisões.
+          </p>
+          <p>
+            <span className="font-semibold text-zinc-600">Objetivo:</span> O
+            objetivo do jogo é controlar a cobra para comer as frutas, fazendo-a
+            crescer o máximo possível sem colidir consigo mesma.
+          </p>
+          <p>
+            <span className="font-semibold text-zinc-600">Ações:</span> Use as
+            setas do teclado para mover a cobra para cima, para baixo, para a
+            esquerda ou para a direita. Cada fruta coletada aumenta o tamanho da
+            cobra e sua pontuação. Continue movendo-se e coletando frutas para
+            crescer e atingir a maior pontuação possível.
+          </p>
+          <p>
+            <span className="font-semibold text-zinc-600">Fim de jogo:</span> O
+            jogo termina se a cobra colidir consigo mesma. Boa sorte!
+          </p>
+        </div>
+        <button
+          type="button"
+          className="mt-4 block w-full rounded bg-neutral-200 p-2 hover:bg-neutral-300"
+          onClick={handleCloseHowToPlayModal}
+        >
+          Continuar
         </button>
       </Modal>
     </div>
