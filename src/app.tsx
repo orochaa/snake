@@ -282,14 +282,14 @@ export function App(): React.JSX.Element {
   }, [])
 
   return (
-    <div className="flex min-h-screen w-screen items-center justify-center bg-cyan-800 font-rubik">
+    <div className="font-rubik flex min-h-screen w-screen items-center justify-center bg-cyan-800">
       <div className="mx-auto my-10 w-11/12">
-        <h1 className="text-center text-7xl font-semibold text-slate-400 drop-shadow">
+        <h1 className="text-center text-7xl font-semibold text-slate-400 drop-shadow-sm">
           Snake
         </h1>
 
         <div className="relative mx-auto mt-4 flex w-fit flex-col gap-4">
-          <div className="mx-auto flex flex-wrap justify-center gap-3 md:absolute md:-right-52 md:top-0 md:flex-col">
+          <div className="mx-auto flex flex-wrap justify-center gap-3 md:absolute md:top-0 md:-right-52 md:flex-col">
             <div className="relative">
               <img
                 src="/images/scoreboard.png"
@@ -312,7 +312,7 @@ export function App(): React.JSX.Element {
                 <span className="text-md md:text-xl">{bestScore}</span>
               </div>
             </div>
-            <div className="flex items-stretch justify-evenly gap-2 rounded-lg bg-cyan-700 p-2 drop-shadow">
+            <div className="flex items-stretch justify-evenly gap-2 rounded-lg bg-cyan-700 p-2 drop-shadow-sm">
               <a
                 href="https://github.com/orochaa/snake"
                 target="_blank"
@@ -333,7 +333,7 @@ export function App(): React.JSX.Element {
             </div>
           </div>
 
-          <div className="relative mx-auto rounded-lg border-2 border-black bg-[#9d8f84] p-3 shadow">
+          <div className="relative mx-auto rounded-lg border-2 border-black bg-[#9d8f84] p-3 shadow-sm">
             <div
               className="relative overflow-hidden border-2 border-dashed border-black"
               style={{ width: 25 * tableSize, height: 25 * tableSize }}
@@ -359,7 +359,7 @@ export function App(): React.JSX.Element {
             </div>
           </div>
 
-          <div className="mx-auto flex w-fit gap-2 rounded-lg bg-cyan-700 p-1.5 drop-shadow">
+          <div className="mx-auto flex w-fit gap-2 rounded-lg bg-cyan-700 p-1.5 drop-shadow-sm">
             <button
               type="button"
               title="Escolher tabuleiro"
@@ -408,7 +408,7 @@ export function App(): React.JSX.Element {
                 <span className="block text-center text-sm font-medium text-zinc-600">
                   {size}x{size}
                 </span>
-                <div className="mx-auto w-fit rounded border border-black bg-[#9d8f84] p-1 shadow">
+                <div className="mx-auto w-fit rounded-sm border border-black bg-[#9d8f84] p-1 shadow-sm">
                   <div
                     className="grid gap-[1px] overflow-hidden border border-black"
                     style={{
@@ -437,7 +437,7 @@ export function App(): React.JSX.Element {
         </p>
         <button
           type="button"
-          className="mx-auto mt-4 block rounded bg-neutral-200 p-2 hover:bg-neutral-300"
+          className="mx-auto mt-4 block rounded-sm bg-neutral-200 p-2 hover:bg-neutral-300"
           onClick={handleRestartGame}
         >
           Tentar Novamente
@@ -474,7 +474,7 @@ export function App(): React.JSX.Element {
         </div>
         <button
           type="button"
-          className="mt-4 block w-full rounded bg-neutral-200 p-2 hover:bg-neutral-300"
+          className="mt-4 block w-full rounded-sm bg-neutral-200 p-2 hover:bg-neutral-300"
           onClick={handleCloseHowToPlayModal}
         >
           Continuar

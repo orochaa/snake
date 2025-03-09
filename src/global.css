@@ -1,7 +1,31 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-*: initial;
+  --font-rubik: Rubik, sans-serif;
+
+  --color-brown-50: #f5f0ed;
+  --color-brown-100: #e8d5d1;
+  --color-brown-200: #d1b2a8;
+  --color-brown-300: #bc8f86;
+  --color-brown-400: #a66d65;
+  --color-brown-500: #5a4d49;
+  --color-brown-600: #4c3e3b;
+  --color-brown-700: #3e2f2d;
+  --color-brown-800: #302020;
+  --color-brown-900: #201010;
+}
 
 * {
   -webkit-font-smoothing: antialiased;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
 }

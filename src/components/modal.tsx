@@ -54,11 +54,11 @@ export const Modal = forwardRef<ModalMethods, ModalProps>((props, ref) => {
           className="absolute inset-0 cursor-default bg-black/40"
           onClick={props.hideCloseButton ? undefined : closeModal}
         />
-        <div className="relative z-10 rounded bg-white pt-7 ring-4 ring-teal-500">
+        <div className="relative z-10 rounded-sm bg-white pt-7 ring-4 ring-teal-500">
           {!props.hideCloseButton && (
             <button
               type="button"
-              className="absolute right-2 top-1 text-zinc-500 transition hover:text-zinc-700"
+              className="absolute top-1 right-2 text-zinc-500 transition hover:text-zinc-700"
               title="Fechar modal"
               onClick={closeModal}
             >
@@ -74,6 +74,6 @@ export const Modal = forwardRef<ModalMethods, ModalProps>((props, ref) => {
   )
 })
 
-export function useModal(): RefObject<ModalMethods> {
+export function useModal(): RefObject<ModalMethods | null> {
   return useRef<ModalMethods>(null)
 }

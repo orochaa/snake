@@ -14,7 +14,7 @@ export function Cell(props: CellProps): React.JSX.Element {
 
   return (
     <div
-      className="absolute flex size-6 flex-col items-center justify-center font-medium text-brown-600 transition-transform will-change-transform"
+      className="text-brown-600 absolute flex size-6 flex-col items-center justify-center font-medium transition-transform will-change-transform"
       style={
         type === 'head' || type === 'body'
           ? {
